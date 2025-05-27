@@ -52,21 +52,8 @@ gunicorn --bind 0.0.0.0:443 --certfile cert.pem --keyfile key.pem app:app
 
 ## Data Flow
 ```mermaid
-flowchart TD
-    subgraph ESP32
-        A[DHT22 Sensor] -->|Temp/Humidity| B[Encrypt Data\nAES-256 + HMAC]
-        B --> C[MQTT over TLS]
-    end
-
-    subgraph Cloud
-        C --> D[Flask Server]
-        D -->|Decrypt| E[Verify HMAC]
-        E --> F[Store in Database]
-    end
-
-    subgraph Mobile
-        F --> G[Admin Dashboard]
-    end
-
-    style ESP32 fill:##80ffd4,stroke:#333
-    style Cloud fill:#ffb3cc,stroke:#333
+sequenceDiagram
+    ESP32->>MQTT Broker: Publish encrypted data (IV+AES+HMAC)
+    MQTT Broker->>Local Server: Forward data to /upload
+    Flask Server->>Local Server: Verify HMAC → Decrypt AES
+    Local Server->>Database: Store clean data

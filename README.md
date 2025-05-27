@@ -47,6 +47,6 @@ gunicorn --bind 0.0.0.0:443 --certfile cert.pem --keyfile key.pem app:app
 ```
 
 ## API Endpoints
-`/upload` → POST method: to receive encrypted sensor data
-`/firmware` → GET method: to provide OTA updates
+1. `/upload` → POST method: to receive encrypted sensor data
+2. `/firmware` → GET method: to provide OTA updates
 

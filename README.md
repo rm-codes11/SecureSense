@@ -52,8 +52,22 @@ gunicorn --bind 0.0.0.0:443 --certfile cert.pem --keyfile key.pem app:app
 
 ## Data Flow
 ```mermaid
-sequenceDiagram
-    ESP32->>MQTT Broker: Publish encrypted data (IV+AES+HMAC)
-    MQTT Broker->>Local Server: Forward data to /upload
-    Flask Server->>Local Server: Verify HMAC → Decrypt AES
-    Local Server->>Database: Store clean data
+graph LR
+    subgraph ESP32 [ESP32 Microcontroller]
+        DHT22["DHT22 Sensor"]
+        ENCRYPT["AES-128 Encryption"]
+        HTTP_POST["HTTP POST (Encrypted Payload)"]
+    end
+
+    subgraph Flask_Server [Flask Server]
+        RECEIVE["Receive Encrypted Data"]
+        DECRYPT["AES-128 Decryption"]
+        LOG["Log Data to File"]
+    end
+
+    DHT22 --> ENCRYPT
+    ENCRYPT --> HTTP_POST
+    HTTP_POST --> RECEIVE
+    RECEIVE --> DECRYPT
+    DECRYPT --> LOG
+

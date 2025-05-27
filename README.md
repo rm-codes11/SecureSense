@@ -50,3 +50,23 @@ gunicorn --bind 0.0.0.0:443 --certfile cert.pem --keyfile key.pem app:app
 1. `/upload` → POST method: to receive encrypted sensor data
 2. `/firmware` → GET method: to provide OTA updates
 
+## Data Flow
+```mermaid
+flowchart TD
+    subgraph ESP32
+        A[DHT22 Sensor] -->|Temp/Humidity| B[Encrypt Data\nAES-256 + HMAC]
+        B --> C[MQTT over TLS]
+    end
+
+    subgraph Cloud
+        C --> D[Flask Server]
+        D -->|Decrypt| E[Verify HMAC]
+        E --> F[Store in Database]
+    end
+
+    subgraph Mobile
+        F --> G[Admin Dashboard]
+    end
+
+    style ESP32 fill:##80ffd4,stroke:#333
+    style Cloud fill:#ffb3cc,stroke:#333
